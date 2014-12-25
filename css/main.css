@@ -1,0 +1,31 @@
+html, body {
+    margin: 0;
+    padding: 0;
+    border: none;
+}
+.toolbar {
+    position: absolute;
+}
+#loader {
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    opacity: 0.6;
+    background: white;
+}
+#loader .pin {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+}
+
+#loader .pin p {
+    position: relative;
+    width: 300px;
+    margin: 0;
+    height: 58px;
+    left: -150px;
+    top: -30px;
+    font-size: 3em;
+    text-align: center;
+}

@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Telematic Data Visualizer</title>
+        <link rel="stylesheet" href="css/main.css" type="text/css">
+    </head>
+    <body>
+        <form class="toolbar" onsubmit="return selectDriver();">
+            <input id="driver_id" value="1">
+        </form>
+        <div id="loader">
+            <div class="pin">
+                <p>LOADING</p>
+            </div>
+        </div>
+        <script src="js/d3/d3.min.js"></script>
+        <script src="js/driver.js"></script>
+        <script src="js/scale.js"></script>
+        <script type="text/javascript">
+            var width = window.innerWidth - 20, height = window.innerHeight - 20;
+
+            var canvas = d3.select("body").append("canvas")
+                    .attr("width", width)
+                    .attr("height", height)
+                    .call(d3.behavior.zoom().scaleExtent([0.01, 100]).on("zoom", zoom))
+                    .node().getContext("2d");
+            Driver.offset.x = width/2;
+            Driver.offset.y = height/2;
+
+            function zoom() {
+                canvas.save();
+                canvas.clearRect(0, 0, width, height);
+                canvas.translate(d3.event.translate[0], d3.event.translate[1]);
+                canvas.scale(d3.event.scale, d3.event.scale);
+                Driver.scale = d3.event.scale;
+                draw();
+                canvas.restore();
+            }
+
+            function draw(reset) {
+                if (reset) {
+                    canvas.clearRect(0, 0, width, height);
+                }
+                Driver.drawDrivers();
+                drawScale();
+            }
+
+            function selectDriver() {
+                document.getElementById('loader').style.display = 'block';
+                Driver.drivers={};
+                Driver.scale = 1;
+                draw(true);
+                driver = new Driver(document.getElementById('driver_id').value, canvas, {
+                    callback: function() {
+                        document.getElementById('loader').style.display = 'none';
+                    }
+                });
+                return false;
+            }
+
+            drawScale();
+            var driver = new Driver(1, canvas, {
+                callback: function() {
+                    document.getElementById('loader').style.display = 'none';
+                }
+            });
+
+        </script>
+    </body>
+</html>
