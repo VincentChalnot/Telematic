@@ -10,6 +10,7 @@ Driver = function (driverId, canvas, options) {
     };
 
     this.__loadTripRecursive = function (tripId) {
+        var previousData, dx, dy;
         d3.csv('/drivers/' + self.driverId + '/' + tripId + '.csv')
             .get(function (error, rows) {
                 if (error) {
@@ -32,18 +33,37 @@ Driver = function (driverId, canvas, options) {
     this.drawTrip = function (tripId) {
         var data = self.trips[tripId];
         var i = 0, n = data.length;
-        self.canvas.beginPath();
-        var x = +data[0].x + Driver.offset.x;
-        var y = +data[0].y + Driver.offset.y;
-        self.canvas.moveTo(x, y);
+        self.canvas.lineWidth = 0.5 / Driver.scale;
+        if (Driver.simpleDraw) {
+            self.canvas.strokeStyle = 'blue';
+        } else {
+            self.canvas.strokeStyle = this.getColor(0);
+        }
+        var x, y;
+        var lastX = +data[0].x + Driver.offset.x;
+        var lastY = +data[0].y + Driver.offset.y;
+        if (Driver.simpleDraw) {
+            self.canvas.beginPath();
+            self.canvas.moveTo(lastX, lastY);
+        }
         while (++i < n) {
+            if (!Driver.simpleDraw) {
+                self.canvas.beginPath();
+                self.canvas.moveTo(lastX, lastY);
+            }
             x = +data[i].x + Driver.offset.x;
             y = +data[i].y + Driver.offset.y;
             self.canvas.lineTo(x, y);
+            if (!Driver.simpleDraw) {
+                self.canvas.strokeStyle = this.getColor(Math.sqrt((x - lastX) * (x - lastX) + (y - lastY) * (y - lastY)));
+                self.canvas.stroke();
+                lastX = x;
+                lastY = y;
+            }
         }
-        self.canvas.lineWidth = 0.5 / Driver.scale;
-        self.canvas.strokeStyle = 'blue';
-        self.canvas.stroke();
+        if (Driver.simpleDraw) {
+            self.canvas.stroke();
+        }
     };
 
     this.finish = function () {
@@ -53,6 +73,12 @@ Driver = function (driverId, canvas, options) {
                 self.options.callback();
             }
         }
+    };
+
+    this.getColor = function(value){
+        //value from 0 to 1
+        var hue = (100 - value * 4).toString(10);
+        return "hsl(" + hue + ",100%,50%)";
     };
 
     this.loadTrips();
@@ -74,3 +100,4 @@ Driver.offset = {
     x: 0,
     y: 0
 };
+Driver.simpleDraw = true;

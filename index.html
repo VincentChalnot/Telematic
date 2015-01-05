@@ -19,6 +19,9 @@
         <script type="text/javascript">
             var width = window.innerWidth - 20, height = window.innerHeight - 20;
 
+            var backBufferEl = document.createElement('canvas');
+            var backBuffer = backBufferEl.getContext('2d');
+            
             var canvas = d3.select("body").append("canvas")
                     .attr("width", width)
                     .attr("height", height)
